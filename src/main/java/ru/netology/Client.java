@@ -6,19 +6,31 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.Scanner;
 
 public class Client {
     public static void main(String[] args) {
-        String host = "localhost";
+        String host = "netology.homework";
         int port = 8888;
-        try (Socket clientSocket = new Socket(host, port);
-             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
-            out.println("Alexander");
-            String resp = in.readLine();
-            System.out.println(resp);
+        Scanner scanner = new Scanner(System.in);
+        try (Socket clientSocket = new Socket(host, port)) {
+            System.out.println("Установлено соединение с сервером "
+                    + clientSocket.getInetAddress().getHostName() + " - "
+                    + clientSocket.getInetAddress().getHostAddress() + ":"
+                    + clientSocket.getPort());
+            try (PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
+                System.out.println(in.readLine()); // "write your name?"
+                out.println(scanner.nextLine()); // отправить ответ на сервер
+                System.out.println(in.readLine()); // "Are you child? (yes/no)"
+                out.println(scanner.nextLine()); // отправить ответ на сервер
+                System.out.println(in.readLine()); // получить ответ от сервера
+            }
         } catch (ConnectException e) {
             System.out.println("Отказано в соединении");
+        } catch (UnknownHostException e) {
+            System.out.println("Неизвестный адрес для подключения");
         } catch (IOException e) {
             e.printStackTrace();
         }
